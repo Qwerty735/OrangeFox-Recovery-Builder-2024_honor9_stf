@@ -122,7 +122,8 @@ jobs:
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         set -e
-        ${{ steps.fox_branch.outputs.value }}
+        lunch lineage_stanford-eng
+        mka adbd recoveryimage -j$(nproc)
 
     - name: Set Build Date # Output will be use in Release
       run: |
