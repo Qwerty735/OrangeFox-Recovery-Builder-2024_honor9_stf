@@ -116,16 +116,21 @@ jobs:
         if_false: lunch omni_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
         
     - name: Building OrangeFox
-      run: |
-        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        # Вырезаем строку с non_ab_device.mk с учетом переменной SRC_TARGET_DIR
-        sed -i 's|\$(call inherit-product, \$(SRC_TARGET_DIR)/product/non_ab_device.mk)|# non_ab_device removed|g' device/huawei/stanford/lineage_stanford.mk
-        set +e
-        source build/envsetup.sh
-        export ALLOW_MISSING_DEPENDENCIES=true
-        set -e
-        lunch lineage_stanford-eng
-        mka adbd recoveryimage -j$(nproc)
+     run: |
+      cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+      # Вырезаем старый non_ab_device.mk
+      sed -i 's|\Snapshot\$(call inherit-product, \$(SRC_TARGET_DIR)/product/non_ab_device.mk)|# non_ab_device removed|g' device/huawei/stanford/lineage_stanford.mk
+      
+      # СКАЧИВАЕМ ОБЩИЕ ФАЙЛЫ ПРОЦЕССОРА KIRIN 960 (hi3660)
+      git clone https://github.com/iceows/android_device_huawei_hi3660-common -b lineage-20 device/huawei/hi3660-common
+        
+      set +e
+      source build/envsetup.sh
+      export ALLOW_MISSING_DEPENDENCIES=true
+      set -e
+      lunch lineage_stanford-eng
+      mka adbd recoveryimage -j$(nproc)
+
 
     - name: Set Build Date # Output will be use in Release
       run: |
